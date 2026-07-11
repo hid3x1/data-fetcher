@@ -1,0 +1,134 @@
+{
+    "name": "data-fetcher",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "remoteUser": "vscode",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "configureZshAsDefaultShell": true
+        },
+        "ghcr.io/devcontainers/features/node:2": {
+            "version": "lts"
+        },
+        "ghcr.io/va-h/devcontainers-features/uv:1": {
+            "shellautocompletion": true
+        },
+        "ghcr.io/devcontainers/features/github-cli:1": {}
+    },
+    // seccomp-userns.json = Docker's default seccomp profile (moby/profiles) plus an
+    // exception letting nested unprivileged user namespaces (clone/unshare/mount/pivot_root)
+    // through, needed for Claude Code's bwrap-based Bash sandbox to work inside this
+    // devcontainer. Regenerate after a Docker default-profile update with:
+    //   jq '.syscalls += [{
+    //     "names": ["bpf","clone","unshare","fanotify_init","fsconfig","fsmount","fsopen",
+    //       "fspick","lookup_dcookie","lsm_get_self_attr","lsm_list_modules",
+    //       "lsm_set_self_attr","mount","mount_setattr","move_mount","open_tree",
+    //       "perf_event_open","quotactl","quotactl_fd","setdomainname","sethostname",
+    //       "setns","syslog","umount","umount2","pivot_root"],
+    //     "action": "SCMP_ACT_ALLOW",
+    //     "comment": "Rely on the kernels own dynamic CAP_SYS_ADMIN check (satisfied inside a self-created unprivileged user namespace, or on subsequent nested unshare/mount calls within it) instead of Dockers static container-capability gate"
+    //   }]' <(curl -fsSL https://raw.githubusercontent.com/moby/profiles/main/seccomp/default.json) \
+    //     > .devcontainer/seccomp-userns.json
+    "runArgs": [
+        "--init",
+        "--name",
+        "data-fetcher",
+        "--cap-add=NET_ADMIN",
+        "--cap-add=NET_RAW",
+        // /proc/sys is mounted read-only inside the container, so
+        // init-firewall.sh cannot disable IPv6 itself via `sysctl -w` (it
+        // silently no-ops: "ignoring: Read-only file system"). These flags
+        // set the namespaced sysctls from the Docker daemon at container
+        // creation instead, before that read-only mount applies.
+        "--sysctl",
+        "net.ipv6.conf.all.disable_ipv6=1",
+        "--sysctl",
+        "net.ipv6.conf.default.disable_ipv6=1",
+        "--sysctl",
+        "net.ipv6.conf.lo.disable_ipv6=1",
+        "--security-opt",
+        "seccomp=${localWorkspaceFolder}/.devcontainer/seccomp-userns.json"
+    ],
+    "mounts": [
+        "source=claude-code-config-${devcontainerId},target=/home/vscode/.claude,type=volume",
+        "source=commandhistory-${devcontainerId},target=/commandhistory,type=volume",
+        "source=uv-cache-${devcontainerId},target=/home/vscode/.cache/uv,type=volume",
+        "source=prek-cache-${devcontainerId},target=/home/vscode/.cache/prek,type=volume"
+    ],
+    "containerEnv": {
+        "NODE_OPTIONS": "--max-old-space-size=4096",
+        "CLAUDE_CONFIG_DIR": "/home/vscode/.claude",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "UV_CACHE_DIR": "/home/vscode/.cache/uv",
+        "UV_LINK_MODE": "copy",
+        "UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+        "VIRTUAL_ENV": "",
+        "HISTFILE": "/commandhistory/.bash_history",
+        // proxy.golang.org fronts modules with signed storage.googleapis.com
+        // redirects whose backing IPs aren't stable enough to allowlist in
+        // init-firewall.sh. `direct` fetches modules straight from their
+        // VCS host (e.g. github.com, already allowlisted) instead of
+        // through the proxy, so `go install` (used by prek's betterleaks
+        // hook) doesn't depend on Google's proxy/storage IP ranges.
+        "GOPROXY": "direct"
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-azuretools.vscode-containers",
+                "docker.docker",
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "astral-sh.ty",
+                "tamasfe.even-better-toml",
+                "streetsidesoftware.code-spell-checker",
+                "EditorConfig.EditorConfig",
+                "christian-kohler.path-intellisense",
+                "shardulm94.trailing-spaces",
+                "qwtel.sqlite-viewer",
+                "github.vscode-github-actions",
+                "Anthropic.claude-code",
+                "eamodio.gitlens"
+            ],
+            "settings": {
+                "python.languageServer": "None",
+                "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "ruff.importStrategy": "fromEnvironment",
+                "ty.importStrategy": "fromEnvironment",
+                "ty.interpreter": [
+                    "/home/vscode/.venv/bin/python"
+                ],
+                "notebook.formatOnSave.enabled": true,
+                "notebook.codeActionsOnSave": {
+                    "notebook.source.fixAll": "explicit",
+                    "notebook.source.organizeImports": "explicit"
+                },
+                "evenBetterToml.formatter.reorderKeys": false,
+                "evenBetterToml.formatter.reorderArrays": false,
+                "[toml]": {
+                    "editor.formatOnSave": false
+                },
+                "[python]": {
+                    "editor.formatOnSave": true,
+                    "editor.formatOnPaste": false,
+                    "editor.formatOnType": false,
+                    "editor.formatOnSaveMode": "file",
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll.ruff": "explicit",
+                        "source.organizeImports.ruff": "explicit"
+                    },
+                    "editor.defaultColorDecorator": "never"
+                }
+            }
+        }
+    },
+    "onCreateCommand": "sudo chown -R vscode:vscode /home/vscode/.cache && npm install -g npm@latest && uv sync",
+    "updateContentCommand": "uv sync",
+    "postStartCommand": "sudo /usr/local/bin/init-firewall.sh && bash .devcontainer/git-sync-check.sh && uv run prek install --hook-type pre-commit --hook-type commit-msg --hook-type pre-push && echo 'The development environment is now ready!'",
+    "waitFor": "postStartCommand"
+}

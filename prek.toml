@@ -1,0 +1,203 @@
+# Configuration file for `prek`, a git hook framework written in Rust.
+# See https://prek.j178.dev for more information.
+#:schema https://www.schemastore.org/prek.json
+
+default_install_hook_types = ["pre-commit", "commit-msg", "pre-push"]
+default_language_version = { python = "python3.14" }
+default_stages = ["pre-commit", "pre-push", "commit-msg"]
+
+# 1. pyproject-fmt - Format pyproject.toml (run before uv-lock so lockfile reflects formatted config)
+[[repos]]
+repo = "https://github.com/tox-dev/pyproject-fmt"
+rev = "v2.25.2"
+
+  [[repos.hooks]]
+  id = "pyproject-fmt"
+  name = "Format pyproject.toml"
+  description = "Format pyproject.toml"
+
+# 2. uv-lock - Update the uv lockfile (run after pyproject-fmt)
+[[repos]]
+repo = "https://github.com/astral-sh/uv-pre-commit"
+rev = "0.11.28"
+
+  [[repos.hooks]]
+  id = "uv-lock"
+
+# 3. General quality checks (run before linters so they see clean files)
+[[repos]]
+repo = "builtin"
+
+  [[repos.hooks]]
+  id = "trailing-whitespace"
+  name = "Remove Trailing Whitespace"
+  description = "end-of-line space removal"
+
+  [[repos.hooks]]
+  id = "end-of-file-fixer"
+  name = "Fix End of Files"
+  description = "Unified line endings at the end of files"
+
+  [[repos.hooks]]
+  id = "mixed-line-ending"
+  name = "Normalize Line Endings"
+  description = "Normalize line endings to LF"
+  args = ["--fix=lf"]
+
+  [[repos.hooks]]
+  id = "check-case-conflict"
+  name = "Check Case Conflict"
+  description = "Prevent files that differ only in case"
+
+  [[repos.hooks]]
+  id = "check-yaml"
+  name = "Check YAML"
+  description = "YAML syntax check"
+  files = '\.ya?ml$'
+
+  [[repos.hooks]]
+  id = "check-json"
+  name = "Check JSON"
+  description = "JSON syntax check"
+  files = '\.json$'
+  # devcontainer.json is JSONC (allows comments per the devcontainer spec),
+  # which a strict JSON parser rejects.
+  exclude = '^\.devcontainer/devcontainer\.json$'
+
+  [[repos.hooks]]
+  id = "check-toml"
+  name = "Check TOML"
+  description = "TOML syntax check"
+  files = '\.toml$'
+
+  [[repos.hooks]]
+  id = "check-added-large-files"
+  name = "Check Large Files"
+  description = "Prevent large files from being committed"
+  args = ["--maxkb=1000"]
+
+  [[repos.hooks]]
+  id = "check-merge-conflict"
+  name = "Check Merge Conflicts"
+  description = "Merge conflict marker detection"
+
+  [[repos.hooks]]
+  id = "no-commit-to-branch"
+  name = "Block push to main"
+  description = "Prevent direct pushes to the main branch"
+  args = ["--branch", "main"]
+  stages = ["pre-push"]
+
+# 4. Ruff - High speed linter/formatter
+[[repos]]
+repo = "https://github.com/astral-sh/ruff-pre-commit"
+rev = "v0.15.21"
+
+  [[repos.hooks]]
+  id = "ruff"
+  name = "Ruff Linter"
+  description = "A fast Python linter"
+  args = ["--fix"]
+  types_or = ["python", "pyi"]
+
+  [[repos.hooks]]
+  id = "ruff-format"
+  name = "Ruff Formatter"
+  description = "A fast Python formatter"
+  types_or = ["python", "pyi"]
+
+# 5. ty - Type checking
+[[repos]]
+repo = "https://github.com/astral-sh/ty-pre-commit"
+rev = "v0.0.58"
+
+  [[repos.hooks]]
+  id = "ty"
+  name = "Type Checking"
+  description = "Run type checking"
+  entry = "uv run ty check"
+  language = "system"
+  args = ["src"]
+  types_or = ["python", "pyi"]
+  pass_filenames = false
+
+# 6. pytest - Unit testing
+[[repos]]
+repo = "local"
+
+  [[repos.hooks]]
+  id = "pytest"
+  name = "Commit Tests"
+  description = "Optimization test at commit"
+  entry = "uv run pytest"
+  language = "system"
+  args = ["--tb=short", "--no-cov", "--maxfail=3"]
+  types_or = ["python", "pyi"]
+  pass_filenames = false
+
+# 7. Betterleaks - Secret scanning
+[[repos]]
+repo = "https://github.com/betterleaks/betterleaks"
+rev = "v1.6.1"
+
+  [[repos.hooks]]
+  id = "betterleaks"
+
+# 8. gitlint - Commit message linting (commit-msg stage)
+[[repos]]
+repo = "https://github.com/jorisroovers/gitlint"
+rev = "v0.19.1"
+
+  [[repos.hooks]]
+  id = "gitlint"
+  name = "Commit message lint"
+  description = "Validate commit messages in the 'Conventional Commits' format"
+  stages = ["commit-msg"]
+
+# 9. Dependency checks (pre-push only)
+[[repos]]
+repo = "local"
+
+  [[repos.hooks]]
+  id = "audit"
+  name = "Dependency Vulnerability Scanning"
+  description = "Scan dependencies for known vulnerabilities"
+  entry = "bash -c 'make firewall-refresh && env UV_MALWARE_CHECK=1 uv audit'"
+  language = "system"
+  pass_filenames = false
+  stages = ["pre-push"]
+
+  [[repos.hooks]]
+  id = "deptry"
+  name = "Dependency Consistency Check"
+  description = "Check for unused/missing/misplaced dependencies"
+  entry = "uv run deptry ."
+  language = "system"
+  pass_filenames = false
+  stages = ["pre-push"]
+
+# 10. Dead code scanning (pre-push only)
+[[repos]]
+repo = "local"
+
+  [[repos.hooks]]
+  id = "vulture"
+  name = "Dead Code Scan"
+  description = "Scan for unused code"
+  entry = "uv run vulture"
+  language = "system"
+  pass_filenames = false
+  stages = ["pre-push"]
+
+# 11. License compatibility scanning (pre-push only)
+[[repos]]
+repo = "local"
+
+  [[repos.hooks]]
+  id = "pip-licenses"
+  name = "License Compatibility Check"
+  description = "Verify dependency OSS license compatibility"
+  entry = "uv run pip-licenses"
+  language = "system"
+  pass_filenames = false
+  stages = ["pre-push"]

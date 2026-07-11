@@ -1,0 +1,101 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-issue-forms.json
+
+name: Bug report
+description: Report unexpected behavior or a defect in data-fetcher.
+title: "fix: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in as
+        much detail as you can — it makes reproducing and fixing the issue
+        much faster.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear and concise description of the bug.
+      placeholder: Tell us what you observed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: A clear and concise description of the expected behavior.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this behavior?
+      placeholder: |
+        1. Set `DATA_FETCHER_...` to '...'
+        2. Run `uv run python src/main.py`
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: >-
+        Paste any relevant loguru output. This will be automatically
+        formatted as a code block, so no need for backticks. Please redact
+        any sensitive values.
+      render: shell
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Relevant configuration
+      description: >-
+        Any non-default `DATA_FETCHER_*` environment variables in use.
+        Please redact secrets.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: data-fetcher version or commit SHA
+      placeholder: e.g. v0.3.1 or abc1234
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Output of `python --version` (requires Python 3.14+)
+      placeholder: e.g. 3.14.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and didn't find a duplicate.
+          required: true
+        - label: I reproduced this on the latest `main` branch.
+          required: false

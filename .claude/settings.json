@@ -1,0 +1,136 @@
+{
+    "$schema": "https://json.schemastore.org/claude-code-settings.json",
+    "env": {
+        "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+        "OTEL_METRICS_EXPORTER": "otlp"
+    },
+    "effortLevel": "xhigh",
+    "permissions": {
+        "allow": [
+            "Bash(git fetch *)",
+            "Bash(git status*)",
+            "Bash(git log *)",
+            "Bash(git diff *)",
+            "Bash(git tag *)",
+            "Bash(make lint*)",
+            "Bash(make format*)",
+            "Bash(make fix*)",
+            "Bash(make typecheck)",
+            "Bash(make test*)",
+            "Bash(make coverage*)",
+            "Bash(make audit*)",
+            "Bash(make deptry*)",
+            "Bash(make check)",
+            "Bash(make clean)",
+            "Bash(make deps)",
+            "Bash(make outdated)",
+            "Bash(make help)",
+            "Bash(gh pr list *)",
+            "Bash(gh pr view *)",
+            "Bash(gh pr checks *)",
+            "Bash(gh pr diff *)",
+            "Bash(gh issue list *)",
+            "Bash(gh issue view *)",
+            "Bash(gh run list *)",
+            "Bash(gh run view *)",
+            "Bash(gh workflow list *)",
+            "Bash(gh api *)"
+        ],
+        "deny": [
+            "Read(./.env)",
+            "Read(./.env.*)",
+            "Bash(rm *)",
+            "Bash(rmdir *)",
+            "Bash(chmod *)",
+            "Bash(chown *)",
+            "Bash(sudo *)",
+            "Bash(exec *)",
+            "Bash(shell *)",
+            "Bash(curl *)",
+            "Bash(wget *)",
+            "Bash(dd *)",
+            "Bash(mkfs *)",
+            "Bash(fdisk *)"
+        ],
+        "ask": [
+            "Bash(git add *)",
+            "Bash(git commit *)",
+            "Bash(git push *)",
+            "Bash(uv add *)",
+            "Bash(uv remove *)",
+            "Bash(uv sync)",
+            "Bash(uv run *)",
+            "Bash(make sync)",
+            "Bash(make upgrade)",
+            "Bash(make uv-update)",
+            "Bash(make hooks-install)",
+            "Bash(make hooks-run)",
+            "Bash(make hooks-update)",
+            "Bash(gh pr create *)",
+            "Bash(gh pr merge *)",
+            "Bash(gh pr close *)",
+            "Bash(gh pr edit *)",
+            "Bash(gh pr review *)",
+            "Bash(gh issue create *)",
+            "Bash(gh issue close *)",
+            "Bash(gh issue edit *)",
+            "Bash(gh release *)",
+            "WebFetch"
+        ]
+    },
+    "enabledPlugins": {
+        "ralph-loop@claude-plugins-official": true,
+        "code-review@claude-plugins-official": true,
+        "code-simplifier@claude-plugins-official": true,
+        "security-guidance@claude-plugins-official": true,
+        "skill-creator@claude-plugins-official": true,
+        "claude-md-management@claude-plugins-official": true,
+        "claude-code-setup@claude-plugins-official": true
+    },
+    "hooks": {
+        "UserPromptSubmit": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "bash -c 'FLAG=\"/tmp/claude-git-fetched-$(git -C /workspaces/data-fetcher rev-parse --show-toplevel 2>/dev/null | tr / _)\"; if [ ! -f \"$FLAG\" ]; then touch \"$FLAG\"; bash /workspaces/data-fetcher/.devcontainer/git-sync-check.sh /workspaces/data-fetcher 2>&1 | sed \"s/^/[remote-sync] /\"; fi'"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "Edit|Write|NotebookEdit",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "make format"
+                    }
+                ]
+            }
+        ]
+    },
+    "language": "japanese",
+    "sandbox": {
+        "enabled": true,
+        "autoAllowBashIfSandboxed": true,
+        "allowUnsandboxedCommands": false,
+        "network": {
+            "allowedDomains": [
+                "github.com",
+                "pypi.org",
+                "files.pythonhosted.org"
+            ],
+            "allowLocalBinding": true
+        },
+        "filesystem": {
+            "allowWrite": [
+                "~/.cache/uv"
+            ]
+        },
+        "excludedCommands": [
+            "git"
+        ]
+    }
+}

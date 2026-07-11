@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Installing dependencies
+        run: uv sync --frozen
+
+      - name: Lint (Ruff)
+        run: uv run ruff check .
+
+      - name: Format check (Ruff)
+        run: uv run ruff format --check .
+
+      - name: Typecheck (ty)
+        run: uv run ty check src
+
+      - name: Test (pytest)
+        run: uv run pytest
+
+      - name: Security audit
+        run: uv audit
+
+      - name: Dependency check (deptry)
+        run: uv run deptry .
+
+      - name: Dead code scan (vulture)
+        run: uv run vulture
+
+      - name: License compatibility scanning (pip-licenses)
+        run: uv run pip-licenses

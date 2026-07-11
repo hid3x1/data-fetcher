@@ -1,0 +1,10 @@
+[general]
+fail-without-commits = true
+contrib = contrib-title-conventional-commits
+ignore = B6
+
+[title-max-length]
+line-length = 50
+
+[title-min-length]
+min-length = 10
