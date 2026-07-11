@@ -1,6 +1,6 @@
 [project]
 name = "data-fetcher"
-version = "0.0.1"
+version = "1.0.0"
 description = """\
   Small Python app that fetches posts from a public API (jsonplaceholder) with retries, structured logging, and typed \
   settings.\
