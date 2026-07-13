@@ -38,7 +38,7 @@ dev = [
   "python-semantic-release>=10.6.1",
   "respx>=0.23.1",
   "ruff>=0.15.21",
-  "ty>=0.0.58",
+  "ty>=0.0.59",
   "vulture>=2.16",
 ]
 
