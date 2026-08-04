@@ -24,10 +24,10 @@ dependencies = [
 [dependency-groups]
 dev = [
   "deptry>=0.25.1",
-  "hypothesis>=6.156.9",
+  "hypothesis>=6.163.0",
   "mutmut>=3.6",
   "pip-licenses>=5.5.5",
-  "prek>=0.4.10",
+  "prek>=0.4.12",
   "pytest>=9.1.1",
   "pytest-asyncio>=1.4",
   "pytest-cov>=7.1",
@@ -37,8 +37,8 @@ dev = [
   "pytest-xdist>=3.8",
   "python-semantic-release>=10.6.1",
   "respx>=0.23.1",
-  "ruff>=0.15.22",
-  "ty>=0.0.61",
+  "ruff>=0.16.0",
+  "ty>=0.0.65",
   "vulture>=2.16",
 ]
 
