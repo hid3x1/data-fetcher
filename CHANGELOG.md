@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.0.4 (2026-08-18)
+
+### Bug Fixes
+
+- **deps**: Bump pydantic-settings from 2.14.2 to 2.15.0
+  ([#12](https://github.com/hid3x1/data-fetcher/pull/12),
+  [`ce3e6eb`](https://github.com/hid3x1/data-fetcher/commit/ce3e6ebcdaf3204af93d88bfa03f59066735f6a6))
+
+
 ## v1.0.3 (2026-08-09)
 
 ### Bug Fixes
