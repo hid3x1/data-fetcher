@@ -2,6 +2,21 @@
 
 <!-- version list -->
 
+## v1.0.5 (2026-09-01)
+
+### Bug Fixes
+
+- **deps**: Bump pydantic from 2.13.4 to 2.13.5
+  ([#14](https://github.com/hid3x1/data-fetcher/pull/14),
+  [`ca7c299`](https://github.com/hid3x1/data-fetcher/commit/ca7c2994d9881df329a72ce88a5fcd60b0dfef16))
+
+### Continuous Integration
+
+- **deps**: Bump astral-sh/setup-uv from 8.3.2 to 10.0.1
+  ([#13](https://github.com/hid3x1/data-fetcher/pull/13),
+  [`802846d`](https://github.com/hid3x1/data-fetcher/commit/802846db294e21adbacf0d26312faae74968b056))
+
+
 ## v1.0.4 (2026-08-18)
 
 ### Bug Fixes
