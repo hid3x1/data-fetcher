@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.0.6 (2026-09-09)
+
+### Bug Fixes
+
+- **deps**: Bump gitpython from 3.1.58 to 3.1.59
+  ([#16](https://github.com/hid3x1/data-fetcher/pull/16),
+  [`2416723`](https://github.com/hid3x1/data-fetcher/commit/241672365dc35a75a6342fbc91a9a94bd7f88825))
+
+
 ## v1.0.5 (2026-09-01)
 
 ### Bug Fixes
